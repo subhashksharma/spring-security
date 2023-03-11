@@ -26,7 +26,7 @@ public class UserVerificationToken {
 
     private static final int EXPIRE_TIME =10;
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",
+    @JoinColumn(name = "id",
              nullable = false,
             foreignKey = @ForeignKey(name="FK_USER_VERIFY_TOKEN")
     )

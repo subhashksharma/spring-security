@@ -50,13 +50,14 @@ public class UserServiceImpl implements UserService{
         if(verificationToken == null) {
             return false;
         }
-
-        if(Calendar.getInstance().getTime().getTime() - verificationToken.getExpirationTime().getTime() <0) {
+        else if (Calendar.getInstance().getTime().getTime() - verificationToken.getExpirationTime().getTime() <0) {
             userVerificationRepository.delete(verificationToken);
-            return  false;
+            User user = verificationToken.getUser();
+            user.setEnabled(true);
+            userRepository.save(user);
+            return true;
+        }else {
+            return false;
         }
-       User user = verificationToken.getUser();
-       user.setEnabled(true);
-        return true;
     }
 }

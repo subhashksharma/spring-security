@@ -3,9 +3,11 @@ package com.subhash.springsecurityclient.controller;
 
 import com.subhash.springsecurityclient.entity.User;
 import com.subhash.springsecurityclient.event.UserCreatedEvent;
+import com.subhash.springsecurityclient.model.AuthenticationRequest;
+import com.subhash.springsecurityclient.model.AuthenticationResponse;
 import com.subhash.springsecurityclient.model.UserModel;
+import com.subhash.springsecurityclient.service.AuthenticationService;
 import com.subhash.springsecurityclient.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +15,20 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
+@RequestMapping("/unsecure/api")
 public class UserRegistrationController {
 
-    @Autowired
-    private UserService userService;
+    private  final UserService userService;
 
-    @Autowired
-    private ApplicationEventPublisher  applicationEventPublisher;
+    private final ApplicationEventPublisher  applicationEventPublisher;
+
+    private final AuthenticationService authenticationService;
+
+    public UserRegistrationController(UserService userService, ApplicationEventPublisher applicationEventPublisher, AuthenticationService authenticationService) {
+        this.userService = userService;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.authenticationService = authenticationService;
+    }
 
     @PostMapping("/register")
     public String registerUser(@RequestBody UserModel userRegistrationBody, HttpServletRequest request) {
@@ -34,17 +43,18 @@ public class UserRegistrationController {
     }
 
     @GetMapping("/register/verifyRegistration")
-    public String verifyRegistration(@RequestParam("token") String token) {
+    public boolean verifyRegistration(@RequestParam("token") String token) {
         boolean verify =userService.verifyUserRegistration(token);
-        return "success";
+        return verify;
     }
 
 
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate (@RequestBody AuthenticationRequest authenticationRequest) {
 
-
-    @GetMapping("/hello")
-    public String getHello(){
-        return "Hello Security";
+        return  ResponseEntity.ok(authenticationService.authenticateUser(authenticationRequest));
     }
+
+
 
 }
